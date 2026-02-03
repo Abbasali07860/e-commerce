@@ -26,46 +26,31 @@
 
     <!-- Start Product Section -->
     <div class="product-section">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12 col-lg-3 mb-5 mb-lg-0">
-                    <h2 class="mb-4 section-title">Crafted with excellent material.</h2>
-                    <p class="mb-4">Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique.</p>
-                    <p><a href="#" class="btn">Explore</a></p>
-                </div>
-                <div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
-                    <a class="product-item" href="#">
-                        <img src="{{ asset('images/product-1.png') }}" class="img-fluid product-thumbnail" alt="Nordic Chair">
-                        <h3 class="product-title">Nordic Chair</h3>
-                        <strong class="product-price">$50.00</strong>
-                        <span class="icon-cross">
-                            <img src="{{ asset('images/cross.svg') }}" class="img-fluid" alt="Add to Cart">
-                        </span>
-                    </a>
-                </div>
-                <div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
-                    <a class="product-item" href="#">
-                        <img src="{{ asset('images/product-2.png') }}" class="img-fluid product-thumbnail" alt="Kruzo Aero Chair">
-                        <h3 class="product-title">Kruzo Aero Chair</h3>
-                        <strong class="product-price">$78.00</strong>
-                        <span class="icon-cross">
-                            <img src="{{ asset('images/cross.svg') }}" class="img-fluid" alt="Add to Cart">
-                        </span>
-                    </a>
-                </div>
-                <div class="col-12 col-md-4 col-lg-3 mb-5 mb-md-0">
-                    <a class="product-item" href="#">
-                        <img src="{{ asset('images/product-3.png') }}" class="img-fluid product-thumbnail" alt="Ergonomic Chair">
-                        <h3 class="product-title">Ergonomic Chair</h3>
-                        <strong class="product-price">$43.00</strong>
-                        <span class="icon-cross">
-                            <img src="{{ asset('images/cross.svg') }}" class="img-fluid" alt="Add to Cart">
-                        </span>
-                    </a>
+    <div class="container">
+    <div class="row">
+        <div class="col-md-12 col-lg-3 mb-5 mb-lg-0">
+            <h2 class="mb-4 section-title">Crafted with excellent material.</h2>
+            <p class="mb-4">Donec vitae odio quis nisl dapibus malesuada. Nullam ac aliquet velit. Aliquam vulputate velit imperdiet dolor tempor tristique.</p>
+            <p><a href="#" class="btn btn-primary">Explore</a></p>
+        </div>
+
+        @if($products->isEmpty())
+            <div class="col-md-9 d-flex align-items-right justify-content-center">
+                <div class="w-100 text-center">
+                    <div class="alert alert-warning">
+                        <h4 class="mb-3"><i class="fas fa-box-open text-warning"></i> No Products Found</h4>
+                        <p class="mb-0">We're currently out of stock. Please check back later or explore our other collections.</p>
+                    </div>
                 </div>
             </div>
-        </div>
+        @else
+            @include('partials.product-item', ['products' => $products])
+        @endif
     </div>
+</div>
+
+</div>
+
     <!-- End Product Section -->
 
     <!-- Start Why Choose Us Section -->
@@ -155,42 +140,21 @@
     <div class="popular-product">
         <div class="container">
             <div class="row">
+                @foreach($products as $product)
                 <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
                     <div class="product-item-sm d-flex">
                         <div class="thumbnail">
-                            <img src="{{ asset('images/product-1.png') }}" alt="Nordic Chair" class="img-fluid">
+                            <img src="{{ asset($product->image) }}" alt="{{ $product->title }}" class="img-fluid">
                         </div>
                         <div class="pt-3">
-                            <h3>Nordic Chair</h3>
+                            <h3>{{ $product->title }}</h3>
                             <p>Donec facilisis quam ut purus rutrum lobortis. Donec vitae odio</p>
-                            <p><a href="#">Read More</a></p>
+                            <p><a href="{{ route('product.show', $product->id) }}">Read More</a></p>
                         </div>
                     </div>
                 </div>
-                <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
-                    <div class="product-item-sm d-flex">
-                        <div class="thumbnail">
-                            <img src="{{ asset('images/product-2.png') }}" alt="Kruzo Aero Chair" class="img-fluid">
-                        </div>
-                        <div class="pt-3">
-                            <h3>Kruzo Aero Chair</h3>
-                            <p>Donec facilisis quam ut purus rutrum lobortis. Donec vitae odio</p>
-                            <p><a href="#">Read More</a></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-12 col-md-6 col-lg-4 mb-4 mb-lg-0">
-                    <div class="product-item-sm d-flex">
-                        <div class="thumbnail">
-                            <img src="{{ asset('images/product-3.png') }}" alt="Ergonomic Chair" class="img-fluid">
-                        </div>
-                        <div class="pt-3">
-                            <h3>Ergonomic Chair</h3>
-                            <p>Donec facilisis quam ut purus rutrum lobortis. Donec vitae odio</p>
-                            <p><a href="#">Read More</a></p>
-                        </div>
-                    </div>
-                </div>
+                @endforeach
+
             </div>
         </div>
     </div>
@@ -287,5 +251,4 @@
             </div>
         </div>
     </div>
-    <!-- End Blog Section -->
 @endsection

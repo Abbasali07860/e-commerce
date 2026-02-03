@@ -3,144 +3,133 @@
 @section('title', 'Cart')
 
 @section('content')
-    <!-- Start Hero Section -->
-    <div class="hero">
-        <div class="container">
-            <div class="row justify-content-between">
-                <div class="col-lg-5">
-                    <div class="intro-excerpt">
-                        <h1>Cart</h1>
-                    </div>
-                </div>
-                <div class="col-lg-7">
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- End Hero Section -->
 
-    <div class="untree_co-section before-footer-section">
-        <div class="container">
-            <div class="row mb-5">
-                <form class="col-md-12" method="post">
-                    <div class="site-blocks-table">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th class="product-thumbnail">Image</th>
-                                    <th class="product-name">Product</th>
-                                    <th class="product-price">Price</th>
-                                    <th class="product-quantity">Quantity</th>
-                                    <th class="product-total">Total</th>
-                                    <th class="product-remove">Remove</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td class="product-thumbnail">
-                                        <img src="{{ asset('images/product-1.png') }}" alt="Product 1" class="img-fluid">
-                                    </td>
-                                    <td class="product-name">
-                                        <h2 class="h5 text-black">Product 1</h2>
-                                    </td>
-                                    <td>$49.00</td>
-                                    <td>
-                                        <div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px;">
-                                            <div class="input-group-prepend">
-                                                <button class="btn btn-outline-black decrease" type="button">−</button>
-                                            </div>
-                                            <input type="text" class="form-control text-center quantity-amount" value="1" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-outline-black increase" type="button">+</button>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>$49.00</td>
-                                    <td><a href="#" class="btn btn-black btn-sm">X</a></td>
-                                </tr>
-                                <tr>
-                                    <td class="product-thumbnail">
-                                        <img src="{{ asset('images/product-2.png') }}" alt="Product 2" class="img-fluid">
-                                    </td>
-                                    <td class="product-name">
-                                        <h2 class="h5 text-black">Product 2</h2>
-                                    </td>
-                                    <td>$49.00</td>
-                                    <td>
-                                        <div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px;">
-                                            <div class="input-group-prepend">
-                                                <button class="btn btn-outline-black decrease" type="button">−</button>
-                                            </div>
-                                            <input type="text" class="form-control text-center quantity-amount" value="1" placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
-                                            <div class="input-group-append">
-                                                <button class="btn btn-outline-black increase" type="button">+</button>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>$49.00</td>
-                                    <td><a href="#" class="btn btn-black btn-sm">X</a></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </form>
+@php
+$cart = session('cart', []);
+$subtotal = collect($cart)->sum(fn($item) => $item['price'] * $item['quantity']);
+@endphp
+<!-- Toast Container -->
+<div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index: 1055;"></div>
+
+<div class="hero-section bg-dark text-white py-4 mb-4">
+    <div class="container d-flex align-items-center">
+        <i class="fas fa-shopping-cart fa-2x me-3"></i>
+        <div>
+            <h1 class="fw-bold mb-0">Your Shopping Cart</h1>
+            <small class="text-light opacity-75">Review your selected items before checkout</small>
+        </div>
+    </div>
+</div>
+
+<!-- Cart Section -->
+<div class="container pb-5">
+    <form method="post" id="cart-update-form">
+        @csrf
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table align-middle table-hover">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Image</th>
+                        <th>Product</th>
+                        <th class="text-center">Price</th>
+                        <th class="text-center">Quantity</th>
+                        <th class="text-center">Total</th>
+                        <th class="text-center">Remove</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse(session('cart', []) as $id => $item)
+                    <tr data-product-id="{{ $id }}">
+                        <td style="width:80px;">
+                            <a href="{{ route('product.show', $item['id']) }}">
+                                <img src="{{ asset($item['image']) }}" alt="{{ $item['title'] }}" class="img-fluid rounded">
+                            </a>
+                        </td>
+                        <td>
+                            <h6 class="fw-semibold mb-1">{{ $item['title'] }}</h6>
+                        </td>
+                        <td class="text-center">₹{{ number_format($item['price'], 2) }}</td>
+                        <td class="text-center">
+                            <div class="input-group input-group-sm justify-content-center">
+                                <button class="btn btn-outline-secondary decrease" type="button">−</button>
+                                <input type="text" class="form-control text-center quantity-amount"
+                                    style="max-width:50px;"
+                                    name="quantity[{{ $id }}]"
+                                    value="{{ $item['quantity'] }}"
+                                    data-price="{{ $item['price'] }}">
+                                <button class="btn btn-outline-secondary increase" type="button">+</button>
+                            </div>
+                        </td>
+                        <td class="text-center product-total">₹{{ number_format($item['price'] * $item['quantity'], 2) }}</td>
+                        <td class="text-center">
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-item">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="6" class="text-center py-4">
+                            <p class="mb-0 text-muted">Your cart is empty.</p>
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        <!-- Buttons -->
+        <div class="row mt-4">
+            <div class="col-md-6 mb-2">
+                <button type="submit" class="btn btn-dark w-100 py-2 fw-semibold">Update Cart</button>
             </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="row mb-5">
-                        <div class="col-md-6 mb-3 mb-md-0">
-                            <button class="btn btn-black btn-sm btn-block">Update Cart</button>
-                        </div>
-                        <div class="col-md-6">
-                            <button class="btn btn-outline-black btn-sm btn-block">Continue Shopping</button>
-                        </div>
+            <div class="col-md-6 mb-2">
+                <a href="{{ route('shop') }}" class="btn btn-outline-dark w-100 py-2 fw-semibold">Continue Shopping</a>
+            </div>
+        </div>
+    </form>
+    @php
+    $coupon = session('coupon');
+    $discount = 0;
+    if ($coupon) {
+        if ($coupon->type === 'fixed') {
+            $discount = $coupon->value;
+        } elseif ($coupon->type === 'percent') {
+            $discount = ($subtotal * $coupon->value) / 100;
+        }
+    }
+    $total = max($subtotal - $discount, 0);
+    @endphp
+    <!-- Totals + Coupon -->
+    <div class="row mt-5">
+        <!-- Coupon Section -->
+        <div class="col-lg-6 mb-4">
+            <h5 class="fw-bold mb-3">Coupon</h5>
+            <p class="text-muted small">Enter your coupon code if you have one.</p>
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="Coupon Code" id="c_code">
+                <button class="btn btn-dark fw-semibold" type="button" id="apply-coupon">Apply Coupon</button>
+            </div>
+        </div>
+
+        <!-- Cart Totals Section -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body" style="padding: 25px">
+                    <h5 class="fw-bold border-bottom pb-2 mb-3">
+                        Cart Totals (<span class="cart-total-count">{{ count(session('cart', [])) }}</span>)
+                    </h5>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal</span>
+                        <strong class="subtotal">₹{{ number_format($subtotal, 2) }}</strong>
                     </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <label class="text-black h4" for="coupon">Coupon</label>
-                            <p>Enter your coupon code if you have one.</p>
-                        </div>
-                        <div class="col-md-8 mb-3 mb-md-0">
-                            <input type="text" class="form-control py-3" id="coupon" placeholder="Coupon Code">
-                        </div>
-                        <div class="col-md-4">
-                            <button class="btn btn-black">Apply Coupon</button>
-                        </div>
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>Total</span>
+                        <strong class="total">₹{{ number_format($subtotal, 2) }}</strong>
                     </div>
-                </div>
-                <div class="col-md-6 pl-5">
-                    <div class="row justify-content-end">
-                        <div class="col-md-7">
-                            <div class="row">
-                                <div class="col-md-12 text-right border-bottom mb-5">
-                                    <h3 class="text-black h4 text-uppercase">Cart Totals</h3>
-                                </div>
-                            </div>
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <span class="text-black">Subtotal</span>
-                                </div>
-                                <div class="col-md-6 text-right">
-                                    <strong class="text-black">$230.00</strong>
-                                </div>
-                            </div>
-                            <div class="row mb-5">
-                                <div class="col-md-6">
-                                    <span class="text-black">Total</span>
-                                </div>
-                                <div class="col-md-6 text-right">
-                                    <strong class="text-black">$230.00</strong>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <button class="btn btn-black btn-lg py-3 btn-block" onclick="window.location=''">Proceed To Checkout</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <a href="{{ route('checkout') }}" class="btn btn-dark w-100 py-2 fw-semibold">Proceed To Checkout</a>
                 </div>
             </div>
         </div>
     </div>
+</div>
 @endsection
